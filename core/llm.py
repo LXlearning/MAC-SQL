@@ -1,8 +1,9 @@
-import sys
 import json
+import sys
 import time
-from core.api_config import *
 
+# from core.api_config import *
+MODEL_NAME = 'gpt-3.5-turbo-0125' #
 MAX_TRY = 5
 
 # 用来传递外面的字典进来
@@ -12,7 +13,14 @@ log_path = None
 api_trace_json_path = None
 total_prompt_tokens = 0
 total_response_tokens = 0
+import os
 
+from openai import OpenAI
+
+with open('./data/chatgpt_api.txt', 'r') as f:
+    OPENAI_API_KEY = f.read()
+os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
+client = OpenAI()
 
 def init_log_path(my_log_path):
     global total_prompt_tokens
@@ -41,14 +49,18 @@ def api_func(prompt:str):
             messages=[{"role": "user", "content": prompt}]
         )
     else:
-        response = openai.ChatCompletion.create(
-            engine=MODEL_NAME,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.1
+        # response = openai.ChatCompletion.create(
+        #     engine=MODEL_NAME,
+        #     messages=[{"role": "user", "content": prompt}],
+        #     temperature=0.1
+        # )
+        response = client.chat.completions.create(
+            model=MODEL_NAME,
+            messages=[{"role": "user", "content": prompt}]
         )
-    text = response['choices'][0]['message']['content'].strip()
-    prompt_token = response['usage']['prompt_tokens']
-    response_token = response['usage']['completion_tokens']
+    text = response.choices[0].message.content.strip()
+    prompt_token = response.usage.prompt_tokens
+    response_token = response.usage.completion_tokens
     return text, prompt_token, response_token
 
 

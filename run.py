@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
-from core.utils import *
-from core.chat_manager import ChatManager
-from core.utils import get_gold_columns
-from core.const import SYSTEM_NAME
-from tqdm import tqdm
-import time
 import argparse
-import sys
-import os
 import json
+import os
+import sys
+import time
 import traceback
+
+from tqdm import tqdm
+
+from core.chat_manager import ChatManager
+from core.const import SYSTEM_NAME
+from core.utils import *
+from core.utils import get_gold_columns
 
 
 def init_spider_message(idx: int, item: dict) -> dict:
@@ -128,7 +130,7 @@ def run_batch(dataset_name, input_file, output_file, db_path, tables_json_path, 
             db_id = item['db_id']
             print(f"\n\nprocessing: {cur_idx}/{total_num}\n\n", flush=True)
             if idx not in unfinished_ids: continue
-            if dataset_name == "spider":
+            if  "spider" in dataset_name:
                 user_message = init_spider_message(idx, item)  # imitate user send a question to system
             elif dataset_name == "bird":
                 user_message = init_bird_message(idx, item, db_path=db_path, use_gold_schema=use_gold_schema)  # imitate user send a question to system
@@ -145,7 +147,7 @@ def run_batch(dataset_name, input_file, output_file, db_path, tables_json_path, 
                 # for debug
                 traceback.print_exc()
                 print(f"Exception: {e}, sleep 20 seconds.", flush=True)
-                time.sleep(20)
+                time.sleep(10)
                 # raise Exception(str(e))
             print(f"\n\ndeal {cur_idx+1}/{total_num} done!\n\n")
         print(f"Result dump into {output_file}", file=sys.stdout, flush=True)
@@ -193,7 +195,7 @@ def check_all_paths(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataset_name', type=str, default='spider', choices=['spider', 'bird'], help='dataset name')
+    parser.add_argument('--dataset_name', type=str, default='Cspider', help='dataset name')#, choices=['spider', 'bird']
     parser.add_argument('--dataset_mode', type=str, default='dev', choices=['train', 'dev', 'test'], help='dataset mode')
     parser.add_argument('--input_file', type=str, required=True, help='path to dataset input')
     parser.add_argument('--db_path', type=str, required=True, help='path to databases in dataset')

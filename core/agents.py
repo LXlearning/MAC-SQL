@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
-from core.utils import parse_json, parse_sql_from_string, add_prefix, load_json_file, extract_world_info, is_email, is_valid_date_column
-from func_timeout import func_set_timeout, FunctionTimedOut
+from func_timeout import FunctionTimedOut, func_set_timeout
+
+from core.utils import (add_prefix, extract_world_info, is_email,
+                        is_valid_date_column, load_json_file, parse_json,
+                        parse_sql_from_string)
 
 LLM_API_FUC = None
 # try import core.api, if error then import core.llm
@@ -13,21 +16,22 @@ except:
     LLM_API_FUC = llm.safe_call_llm
     print(f"Use func from core.llm in agents.py")
 
-from core.const import *
-from typing import List
-from copy import deepcopy
-
-import sqlite3
-import time
 import abc
-import sys
-import os
 import glob
-import pandas as pd
-from tqdm import tqdm, trange
-from pprint import pprint
+import os
 import pdb
+import sqlite3
+import sys
+import time
+from copy import deepcopy
+from pprint import pprint
+from typing import List
+
+import pandas as pd
 import tiktoken
+from tqdm import tqdm, trange
+
+from core.const import *
 
 
 class BaseAgent(metaclass=abc.ABCMeta):
@@ -557,6 +561,7 @@ class Selector(BaseAgent):
                          "extracted_schema": None if no preprocessed result found}
         :return: extracted database schema {"desc_str": extracted_db_schema, "fk_str": foreign_keys_of_db}
         """
+
         if message['send_to'] != self.name: return
         self._message = message
         db_id, ext_sch, query, evidence = message.get('db_id'), \
@@ -699,7 +704,7 @@ class Refiner(BaseAgent):
 
     def _is_need_refine(self, exec_result: dict):
         # spider exist dirty values, even gold sql execution result is None
-        if self.dataset_name == 'spider':
+        if 'spider' in self.dataset_name:
             if 'data' not in exec_result:
                 return True
             return False
