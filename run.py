@@ -125,32 +125,44 @@ def run_batch(dataset_name, input_file, output_file, db_path, tables_json_path, 
     # generate SQL one by one, and save result one by one
     with open(output_file, 'a+', encoding='utf-8') as fp:
         total_num = len(batch)
-        for cur_idx, item in tqdm(enumerate(batch), total=total_num):
-            idx = item['question_id']
-            db_id = item['db_id']
-            print(f"\n\nprocessing: {cur_idx}/{total_num}\n\n", flush=True)
-            if idx not in unfinished_ids: continue
-            if  "spider" in dataset_name:
-                user_message = init_spider_message(idx, item)  # imitate user send a question to system
-            elif dataset_name == "bird":
-                user_message = init_bird_message(idx, item, db_path=db_path, use_gold_schema=use_gold_schema)  # imitate user send a question to system
-            try:
-                chat_manager.start(user_message)
+        for cur_idx, items in tqdm(enumerate(batch), total=total_num):
+            db_list = items['db_list']
+            for item in items['interaction']:
+                idx = item['question_id']
+                db_id = db_list[0]  #item['db_id']
+                print(f"\n\nprocessing: {cur_idx}/{total_num}\n\n", flush=True)
+                # if idx not in unfinished_ids: continue
+                if  "spider" in dataset_name:
+                    user_message = init_spider_message(idx, item)  # imitate user send a question to system
+                elif dataset_name == "bird":
+                    user_message = init_bird_message(idx, item, db_path=db_path, use_gold_schema=use_gold_schema)  # imitate user send a question to system
+                else:
+                    user_message = {"idx": idx,
+                                    "db_id": db_id,
+                                    "query": item['question'],
+                                    "evidence": "",
+                                    "extracted_schema": {},
+                                    "ground_truth": '',
+                                    "difficulty": "medium",
+                                    "send_to": SYSTEM_NAME
+                                    }
                 try:
-                    del user_message['desc_str']
-                    del user_message['fk_str']
-                    del user_message['send_to']
-                except:
-                    pass
-                print(json.dumps(user_message, ensure_ascii=False), file=fp, flush=True)
-            except Exception as e:
-                # for debug
-                traceback.print_exc()
-                print(f"Exception: {e}, sleep 20 seconds.", flush=True)
-                time.sleep(10)
-                # raise Exception(str(e))
-            print(f"\n\ndeal {cur_idx+1}/{total_num} done!\n\n")
-        print(f"Result dump into {output_file}", file=sys.stdout, flush=True)
+                    chat_manager.start(user_message)
+                    try:
+                        del user_message['desc_str']
+                        del user_message['fk_str']
+                        del user_message['send_to']
+                    except:
+                        pass
+                    print(json.dumps(user_message, ensure_ascii=False), file=fp, flush=True)
+                except Exception as e:
+                    # for debug
+                    traceback.print_exc()
+                    print(f"Exception: {e}, sleep 20 seconds.", flush=True)
+                    time.sleep(10)
+                    # raise Exception(str(e))
+                print(f"\n\ndeal {cur_idx+1}/{total_num} done!\n\n")
+            print(f"Result dump into {output_file}", file=sys.stdout, flush=True)
 
     # export evaluation results
     out_dir = os.path.dirname(output_file)

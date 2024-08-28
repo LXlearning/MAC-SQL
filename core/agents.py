@@ -276,7 +276,7 @@ class Selector(BaseAgent):
                 important_key_id_lst.append(col_id)
 
 
-        db_path = f"{self.data_path}/{db_id}/{db_id}.sqlite"
+        db_path = f"{self.data_path}/{db_id}.sqlite"#{db_id}/
         conn = sqlite3.connect(db_path)
         conn.text_factory = lambda b: b.decode(errors="ignore")  # avoid gbk/utf8 error, copied from sql-eval.exec_eval
         cursor = conn.cursor()
@@ -676,7 +676,7 @@ class Refiner(BaseAgent):
     @func_set_timeout(120)
     def _execute_sql(self, sql: str, db_id: str) -> dict:
         # Get database connection
-        db_path = f"{self.data_path}/{db_id}/{db_id}.sqlite"
+        db_path = f"{self.data_path}/{db_id}.sqlite"#/{db_id}
         conn = sqlite3.connect(db_path)
         conn.text_factory = lambda b: b.decode(errors="ignore")
         cursor = conn.cursor()
