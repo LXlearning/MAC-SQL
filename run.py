@@ -170,7 +170,7 @@ def run_batch(dataset_name, input_file, output_file, db_path, tables_json_path, 
                 eval_tuple_lst.append(obj)
             json.dump(eval_tuple_lst, fp=fout, ensure_ascii=False, indent=2)
             print(f"BIRD format file dump into {evaluation_file_path}")
-    elif dataset_name == "spider":
+    elif "spider" in dataset_name:
         evaluation_file_path = f"{out_dir}/pred_{dataset_mode}.sql"
         spider_sql_lst = []
         output_json_lst = load_jsonl_file(output_file)

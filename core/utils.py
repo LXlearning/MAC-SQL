@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
-import os
-import re
-import random
 import json
-import time
+import os
+import random
+import re
 import sqlite3
-from core.const import subq_pattern
+import time
 from typing import Dict, List
+
+from core.const import subq_pattern
 
 
 def is_valid_date(date_str):
@@ -235,8 +236,8 @@ def get_files(root, suffix):
     :param suffix: 指定后缀 str 类型 如：'.txt'
     :return: 文件列表 
     """
-    import os
     import glob
+    import os
     if not os.path.exists(root):
         raise FileNotFoundError(f'path {root} not found.')
     res = glob.glob(f'{root}/**/*{suffix}', recursive=True)
